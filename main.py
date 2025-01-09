@@ -33,19 +33,11 @@ def send_notif():
     if "Not Windows 10 or 11" in windows_version:
         print("Not Windows 10 or 11")
     elif "11" in windows_version:
-        print("Windows 11")
+        print("Running on Windows 11")
     elif "10" in windows_version:
-        print("Windows 10")
+        print("Running on Windows 10")
 
 def main():
-    send_notif()
-    app = ctk.CTk()
-    app.title("Speech Recognition")
-    app.geometry("300x200")
-    label = ctk.CTkLabel(app, text="Speech Recognition")
-
-    label.pack()
-    app.mainloop()
 
 if __name__ == '__main__':
     main()
