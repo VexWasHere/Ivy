@@ -9,17 +9,17 @@ engine = pyttsx3.init()
 genai.configure(api_key="AIzaSyAzUb-jta-rZH9VoiWaWwz50nBJxCdvNaI")  # Replace with your actual API key
 
 with open('creator_info.txt', 'r') as file:
-    line = file.readline()
+    aboutme = file.readlines()
 
 model = genai.GenerativeModel(
     model_name="gemini-1.5-flash",
-    system_instruction=line
+    system_instruction=aboutme
 )
 
 chat = model.start_chat(
     history = [
-        {"role": "user", "parts", "Hey Ivy. I'm working on making a new project!"},
-        {"role": "model", "parts", "Sounds great! What's it about?"}
+        {"role": "user", "parts": "Hey Ivy. I'm working on making a new project!"},
+        {"role": "model", "parts": "Sounds great! What's it about?"}
     ]
 )
 
@@ -29,8 +29,7 @@ engine.say("Welcome back, Charles!")
 while True:
     with sr.Microphone() as source:
         print("Please say something.")
-        placeholder_input = input() # input to type /end if needed
-        recognizer.adjust_for_ambient_noise(source)  # Adjust for ambient noise
+        #recognizer.adjust_for_ambient_noise(source)  # Adjust for ambient noise
         try:
             audio_data = recognizer.listen(source, timeout=5)  # Set a timeout for listening
             print("Listening...")
