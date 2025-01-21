@@ -1,70 +1,90 @@
 import google.generativeai as genai
 import pyttsx3
 import speech_recognition as sr
+import colorama as clr
+import os
+import json
+
+clr.just_fix_windows_console()
+clr.init()
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
 
+
 # REMEMBER TO REMOVE API KEY / TRANSFER
 genai.configure(api_key="AIzaSyAzUb-jta-rZH9VoiWaWwz50nBJxCdvNaI")  # Replace with your actual API key
 
+
 with open('creator_info.txt', 'r') as file:
     aboutme = file.readlines()
+
 
 model = genai.GenerativeModel(
     model_name="gemini-1.5-flash",
     system_instruction=aboutme
 )
 
-chat = model.start_chat(
-    history = [
-        {"role": "user", "parts": "Hey Ivy. I'm working on making a new project!"},
-        {"role": "model", "parts": "Sounds great! What's it about?"}
-    ]
-)
+chat_history_file = '/chat_history.json'
 
-print("Welcome back, Charles. Type /end to quit")
-engine.say("Welcome back, Charles!")
 
-while True:
-    with sr.Microphone() as source:
-        print("Please say something.")
-        #recognizer.adjust_for_ambient_noise(source)  # Adjust for ambient noise
-        try:
-            audio_data = recognizer.listen(source, timeout=5)  # Set a timeout for listening
-            print("Listening...")
-            text = recognizer.recognize_google(audio_data)
-            print(f"You: {text}")
-        except sr.UnknownValueError:
-            print("Sorry, I didn't catch that. Please try again.")
-            continue  # Go back to the start of the loop to listen again
-        except sr.RequestError:
-            print("Could not request results; this could be from your network being offline.")
-            user_input = input("You: ")
-            user_input = user_input.lower()
-            if "/end" in user_input:
-                print("Goodbye!")
-                break
-            else:
-                try:
-                    response = chat.send_message(user_input)
-                    print(f"Ivy: {response.text}")
-                    engine.say(response.text)
-                    engine.runAndWait()
-                except Exception as e:
-                    print(f"An error occurred: {e}")
-            continue  # Go back to the start of the loop
+def load_chat_history():
+    if os.path.exists(chat_history_file):
+        with open(chat_history_file, 'r') as file:
+            return json.load(file)
+    else:
+        return []
 
-        # Process the recognized text
-        user_input = text.lower()
+def save_chat_history(history):
+    with open(chat_history_file, 'w') as file:
+        json.dump(history, file, indent=4)
+
+def add_to_chat_history(role, parts):
+    history = load_chat_history()
+    history.append({"role": role, "parts": parts})
+    save_chat_history(history)
+
+# Load chat history safely
+try:
+    data = load_chat_history()
+except Exception as e:
+    print(f"Error loading chat history: {e}")
+    data = []
+
+# Check if 'history' key exists in the loaded data
+history = data.get('history', [])  # Use an empty list if 'history' key is not found
+
+# Start chat with the loaded history
+chat = model.start_chat(history=history)
+
+
+def talk():
+    print("Welcome back, Charles. Type /end to quit")
+    while True:
+        user_input = input(f"{clr.Fore.WHITE}You: ")
+        user_input = user_input.lower()
+
         if "/end" in user_input:
             print("Goodbye!")
+            os.system('cls')
             break
+
+        elif "/reset" in user_input:
+            os.system('cls')
+            talk()  # talk() again to reset the conversation
+            break  # This break is not necessary since talk() will start a new loop
+
         else:
             try:
                 response = chat.send_message(user_input)
-                print(f"Ivy: {response.text}")
-                engine.say(response.text)
-                engine.runAndWait()
+                print(f"{clr.Fore.GREEN}Ivy: {response.text}", end='')
+                if "speak" in user_input:
+                    while True:
+                        return response.text
             except Exception as e:
-                print(f"An error occurred: {e}")
+                print(f"{clr.Fore.RED}Error: {e}")
+
+
+
+if __name__ == "__main__":
+    talk()
