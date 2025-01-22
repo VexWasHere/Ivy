@@ -5,17 +5,7 @@ import colorama as clr
 import os
 import json
 import datetime
-import eel
 
-
-
-counter = 0
-
-def run_counter():
-    global counter
-    counter += 1
-    save_counter(counter)
-    print(f"Runs: {counter}")
 
 clr.just_fix_windows_console()
 clr.init()
@@ -38,22 +28,11 @@ model = genai.GenerativeModel(
     system_instruction=aboutme
 )
 
+#Load json history file
 chat_history_file = "chat_history.json"
 
-def load_counter():
-    try:
-        with open('counter.txt', 'r') as file:
-            return int(file.read().strip())
-    except (FileNotFoundError, ValueError):
-        return 0
 
-def save_counter(counter):
-    try:
-        with open('counter.txt', 'w') as file:
-            file.write(str(counter))
-    except Exception as e:
-        print(f"Error saving counter: {e}")
-
+#Loading history from json file
 def load_history():
     try:
         with open(chat_history_file, 'r') as file:
@@ -68,6 +47,7 @@ def save_history(history):
     except Exception as e:
         print(f"{clr.Fore.RED}Error 62: {e}", end='')
 
+#If it cannot grab json contents, it uses pre-made history
 try:
     with open(chat_history_file, 'r') as file:
         history = json.load(file)
@@ -81,7 +61,20 @@ except FileNotFoundError:
 chat = model.start_chat(history=history)
 
 def callback_mode(): #Made for 1 input, more resembling google assistant
-    pass
+    while True:
+        with sr.Microphone() as source:
+            print("Ready...")
+            audio_input = recognizer.listen(source)
+            print("...")
+
+        try:
+            audio_input = recognizer.reconize_google(audio_input)
+            response = chat.send_message(audio_input)
+            print(f"{clr.Fore.GREEN}Ivy: {response.text}", end='')
+            engine.say(response.text)
+        except:
+            print("Sorry, I didn't understand")
+
 
 
 def conversation_mode():
@@ -141,13 +134,4 @@ def conversation_mode():
 
 
 if __name__ == "__main__":
-    eel.init('design')
-
-    @eel.expose
-
-    def demo(x):
-        return x**2
-
-    eel.start('index.html', size=(1000, 600))
-    run_counter()
     conversation_mode()
