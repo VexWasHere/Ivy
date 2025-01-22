@@ -20,8 +20,12 @@ clr.init()
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
 
+with open('api_key.txt', 'r') as key:
+    # Read the entire content of the file
+    content = key.read()
+
 # REMEMBER TO REMOVE API KEY / TRANSFER
-genai.configure(api_key="AIzaSyAzUb-jta-rZH9VoiWaWwz50nBJxCdvNaI")  # Replace with your actual API key
+genai.configure(api_key=content)  # Replace with your actual API key
 
 with open('creator_info.txt', 'r') as file:
     aboutme = file.readlines()
