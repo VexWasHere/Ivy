@@ -1,0 +1,13 @@
+{
+    "history": [
+        {"role": "model", "parts": "Hello, Charles. I am your personal assistant."},
+        {"role": "user", "parts": "Hello, Ivy"},
+        {"role": "model", "parts": "Hey Charles. What's up?"},
+        {"role": "user", "parts": "Not much. Jus workin on u rn"},
+        {"role": "model", "parts": "Sounds good. Whatcha working on now?"},
+        {"role": "user", "parts": "Right now I'm makin a real time clock"},
+        {"role": "model", "parts": "Sounds good. Let me know if you need advice."},
+        {"role": "user", "parts": "Ight. Imma put you in rest real quick so I can update it. See you later"},
+        {"role": "model", "parts": "Sounds good. See you later."}
+    ]
+}
