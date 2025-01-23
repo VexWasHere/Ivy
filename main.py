@@ -4,8 +4,8 @@ import speech_recognition as sr
 import colorama as clr
 import os
 import json
-import datetime
 
+keyword = "hey ivy"
 
 clr.just_fix_windows_console()
 clr.init()
@@ -58,20 +58,29 @@ except FileNotFoundError:
     ]
 
 # Start chat with the loaded history
-chat = model.start_chat(history=history)
+chat = model.start_chat()#history=history)
 
 def callback_mode(): #Made for 1 input, more resembling google assistant
     while True:
         with sr.Microphone() as source:
-            print("Ready...")
-            audio_input = recognizer.listen(source)
-            print("...")
+            print(f"{clr.Fore.LIGHTBLUE_EX}Ready...")
+            k_input = recognizer.listen(source)
+            print(f"{clr.Fore.LIGHTBLUE_EX}...")
+            print(recognizer.recognize_google(k_input))
 
         try:
-            audio_input = recognizer.reconize_google(audio_input)
-            response = chat.send_message(audio_input)
-            print(f"{clr.Fore.GREEN}Ivy: {response.text}", end='')
-            engine.say(response.text)
+            keyword_input = recognizer.recognize_google(k_input)
+            if keyword.lower() in keyword_input.lower():
+                with sr.Microphone as source2:
+                    print(clr.Fore.GREEN + "Ivy: Hm?", end='')
+                    audio_input = recognizer.listen(source2)
+                    audio_input = recognizer.recognize_google(audio_input)
+                    response = chat.send_message(audio_input)
+                    print(f"{clr.Fore.WHITE}You: {audio_input}")
+                    print(f"{clr.Fore.GREEN}Ivy: {response.text}", end='')
+                    engine.say(response.text)
+            else:
+                print("err")
         except:
             print("Sorry, I didn't understand")
 
@@ -97,9 +106,6 @@ def conversation_mode():
             print("/end - End conversation \n/reset - Reset conversation to last recorded message \n")
             conversation_mode()
             break 
-
-        elif "what" and "time" in user_input:
-            print(datetime.time())
 
         else:
             try:
@@ -134,4 +140,4 @@ def conversation_mode():
 
 
 if __name__ == "__main__":
-    conversation_mode()
+    callback_mode()
