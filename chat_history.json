@@ -1,5 +1,5 @@
 {
-    "history": [
+    "json_history": [
         {"role": "model", "parts": "Hello, Charles. I am your personal assistant."},
         {"role": "user", "parts": "Hello, Ivy"},
         {"role": "model", "parts": "Hey Charles. What's up?"},

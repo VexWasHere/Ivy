@@ -140,4 +140,4 @@ def conversation_mode():
 
 
 if __name__ == "__main__":
-    callback_mode()
+    conversation_mode()
