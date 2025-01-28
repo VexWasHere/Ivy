@@ -5,6 +5,7 @@ import random #Pause to add better typing effect
 import google.generativeai as genai
 import json
 import socket
+from PIL import Image, ImageTk
 
 # Initialize System information (nothing bad I swear)
 hostname = socket.gethostname()
@@ -21,7 +22,6 @@ screen_height = app.winfo_screenheight()
 app.resizable(True, True)
 app.minsize(300, 300)
 
-ctk.set_appearance_mode("system")
 ctk.set_default_color_theme("blue")
 
 ctk.deactivate_automatic_dpi_awareness()
@@ -83,7 +83,7 @@ def type_effect(response_widget, text, idx):
         response_widget.configure(text=current_text + text[idx])  # Update label text
         
         # Determine the delay based on the character
-        if text[idx] in [' ', '.']:
+        if text[idx] in [' ', '.', ',', '?','!','@', '$', '&', '*', ')']:
             # Longer delay for spaces and periods
             delay = random.randint(200, 500)  # Random delay between 200 and 500 ms
         else:
@@ -101,14 +101,41 @@ def update_label():
 
 # App content
 
-date_widget = ctk.CTkLabel(app, font=("Times New Roman", 28))
-date_widget.pack(padx=0, pady=50)
+    # Tabs
+tabview = ctk.CTkTabview(app)
+tabview.pack(fill="both", expand=True, padx=10, pady=10)
 
-response_widget = ctk.CTkLabel(app, text=f"Welcome back, {hostname}", font=("Helvetica", 16))
-response_widget.pack(padx=0, pady=20, fill="both", expand=True)
+home_tab = tabview.add("Home")
+chat_tab = tabview.add("Chat")
+settings_tab = tabview.add("Settings")
 
-entry_widget = ctk.CTkEntry(app, placeholder_text="Talk to Ivy...")
-entry_widget.pack(padx=0, pady=40)
+home_btn = ctk.CTkButton(home_tab)
+home_btn.grid(row=0, column=0, padx=20, pady=10)
+
+    # Home content
+date_widget = ctk.CTkLabel(home_tab, font=("Times New Roman", 28))
+date_widget.grid(padx=0, pady=50)
+
+    # Chat content
+response_widget = ctk.CTkLabel(chat_tab, text=f"Welcome back, {hostname}", font=("Helvetica", 16))
+response_widget.grid(row=0, column=0, padx=20, pady=20)
+
+entry_widget = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...")
+entry_widget.grid(row=0, column=0, padx=20, pady=30)
+
+    # Settings content
+dark_mode = False
+
+def dark_mode_switch():
+    global dark_mode
+    dark_mode = not dark_mode
+    ctk.set_appearance_mode('dark' if dark_mode else 'light')
+    print("gui.py: appearance mode changed!")
+
+
+
+settings_btn = ctk.CTkButton(settings_tab, text = 'Activate light mode' if dark_mode else 'Activate dark mode' ,command=dark_mode_switch)
+settings_btn.grid(row = 0, column = 0, padx=20, pady=20)
 
     # Bind the Return key to the send function
 entry_widget.bind('<Return>', send)  # Pass the function reference without parentheses
