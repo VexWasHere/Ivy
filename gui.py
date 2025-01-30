@@ -14,6 +14,7 @@ hostname = socket.gethostname()
 app = ctk.CTk()
 app.title("Ivy")
 app.geometry('600x400')
+#app.iconbitmap('/rose_icon.ico') # I don't have icon file rn :(
 
 # Get screen dimensions
 screen_width = app.winfo_screenwidth()
@@ -69,13 +70,14 @@ except (FileNotFoundError) as e:
 # Classes and Functions
 
 
-def send(event):
+def send():
     message = entry_widget.get()
     if not message.strip():
         return
     entry_widget.delete(0, tk.END)  # Clear the entry field
     response_widget.configure(text="")  # Clear the label before typing effect
     type_effect(response_widget, message, 0)  # Start typing effect
+    print("gui.py: Message sent")
 
 def type_effect(response_widget, text, idx):
     if idx < len(text):
@@ -95,8 +97,10 @@ def type_effect(response_widget, text, idx):
 
 def update_label():
     now = datetime.now()
-    current_time = now.strftime("%Y-%m-%d %H:%M:%S")
-    date_widget.configure(text=current_time)
+    formatted_time = now.strftime('%I %p')
+
+    
+    date_widget.configure(text=f"Welcome back {hostname}. It is currently {formatted_time}")
     app.after(500, update_label)
 
 # App content
@@ -109,21 +113,25 @@ home_tab = tabview.add("Home")
 chat_tab = tabview.add("Chat")
 settings_tab = tabview.add("Settings")
 
-home_btn = ctk.CTkButton(home_tab)
-home_btn.grid(row=0, column=0, padx=20, pady=10)
-
     # Home content
 date_widget = ctk.CTkLabel(home_tab, font=("Times New Roman", 28))
 date_widget.grid(padx=0, pady=50)
 
     # Chat content
 response_widget = ctk.CTkLabel(chat_tab, text=f"Welcome back, {hostname}", font=("Helvetica", 16))
-response_widget.grid(row=0, column=0, padx=20, pady=20)
+response_widget.grid(row=0, column=0, padx=0, pady=70)
 
-entry_widget = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...")
-entry_widget.grid(row=0, column=0, padx=20, pady=30)
+entry_widget = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...", width=480)
+entry_widget.grid(row=5, column=0, padx=20, pady=130)
+
+send_btn = ctk.CTkButton(chat_tab, text="X", width = 40, command=send)
+send_btn.grid(row=5, column=1, padx=10, pady=130)
+
+        # Bind the Return key to the send function
+entry_widget.bind('<Return>', send)  # Pass the function reference without parentheses
 
     # Settings content
+        # Switching appearance mode
 dark_mode = False
 
 def dark_mode_switch():
@@ -134,11 +142,8 @@ def dark_mode_switch():
 
 
 
-settings_btn = ctk.CTkButton(settings_tab, text = 'Activate light mode' if dark_mode else 'Activate dark mode' ,command=dark_mode_switch)
+settings_btn = ctk.CTkButton(settings_tab, text="Change appearance mode", command=dark_mode_switch)
 settings_btn.grid(row = 0, column = 0, padx=20, pady=20)
-
-    # Bind the Return key to the send function
-entry_widget.bind('<Return>', send)  # Pass the function reference without parentheses
 
 update_label()
 
