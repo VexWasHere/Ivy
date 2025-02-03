@@ -7,13 +7,15 @@ import json
 import socket
 from PIL import Image, ImageTk
 
-# Initialize System information (nothing bad I swear)
+# Initialize System information
 hostname = socket.gethostname()
+
 
 # Window
 app = ctk.CTk()
 app.title("Ivy")
 app.geometry('600x500')
+app.iconbitmap('pixel_rose.ico')
 
 # Get screen dimensions
 screen_width = app.winfo_screenwidth()
@@ -73,8 +75,10 @@ chat = model.start_chat()
 # Classes and Functions
 
 
+
+
 def send():
-    message = entry_widget.get()
+    message = chat_input.get()
     if not message.strip():
         return
     
@@ -83,7 +87,7 @@ def send():
     chat_display.configure(state=tk.DISABLED)  # Disable editing
 
     response = chat.send_message(message)
-    entry_widget.delete(0, tk.END)  # Clear the entry field
+    chat_input.delete(0, tk.END)  # Clear the entry field
     # response_widget.configure(text="")  # Clear the label before typing effect
     response_text = wrap_text(response.text)
 
@@ -129,10 +133,12 @@ def wrap_text(text, max_length=60):
 
 def update_label():
     now = datetime.now()
+    current_hour = now.hour
+    greeting = "Good morning" if current_hour <= 12 else "Good evening"
     formatted_time = now.strftime('%I %p')
 
     
-    date_widget.configure(text=f"Welcome back {hostname}. It is currently {formatted_time}")
+    date_widget.configure(text=f"{greeting} {hostname}. It is currently {formatted_time}")
     app.after(500, update_label)
 
 # App content
@@ -159,14 +165,14 @@ chat_display.grid(row=0, column=0, padx=0, pady=0)
 
 chat_display.configure(state=tk.DISABLED)  # Disable editing
 
-entry_widget = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...", width=480)
-entry_widget.grid(row=5, column=0, padx=20, pady=0)
+chat_input = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...", width=480)
+chat_input.grid(row=5, column=0, padx=20, pady=0)
 
 send_btn = ctk.CTkButton(chat_tab, text="Send", width = 40, command=send)
 send_btn.grid(row=5, column=1, padx=10, pady=130)
 
         # Bind the Return key to the send function
-entry_widget.bind('<Return>', lambda event: send())  # Pass the function reference without parentheses
+chat_input.bind('<Return>', lambda event: send())  # Pass the function reference without parentheses
 
     # Settings content
         # Switching appearance mode
@@ -178,29 +184,14 @@ def dark_mode_switch():
     ctk.set_appearance_mode('dark' if dark_mode else 'light')
     print("gui.py: appearance mode changed!")
 
-def change_assistent_name():
-    new_name = assistant_name_input.get()
-    assistant_name_input.delete(0, tk.END)
-    if new_name != "":
-        # chat = model.start_chat(assistant_name=new_name)
-        print("gui.py: Assistant name changed!")
+settings_lbl = ctk.CTkLabel(settings_tab, text="Design and appearances", font=("Helvetica", 14))
+settings_lbl.grid(row = 0, column = 0, padx=0, pady=0)
 
 appearance_lbl = ctk.CTkLabel(settings_tab, text="Change appearance mode: ", font=("Helvetica", 14))
 appearance_btn = ctk.CTkButton(settings_tab, text="Change appearance mode", command=dark_mode_switch)
-appearance_lbl.grid(row = 0, column = 0, padx=0, pady=0)
-appearance_btn.grid(row = 0, column = 1, padx=0, pady=0)
+appearance_lbl.grid(row = 1, column = 0, padx=0, pady=0)
+appearance_btn.grid(row = 1, column = 1, padx=0, pady=0)
 
-assistant_name_lbl = ctk.CTkLabel(settings_tab, text="Change assistant name: ", font=("Helvetica", 14))
-assistant_name_input = ctk.CTkEntry(settings_tab, placeholder_text="Change assistant name")
-assistant_name_btn = ctk.CTkButton(settings_tab, text="Save", command = change_assistent_name)
-
-
-assistant_name_lbl.grid(row=1, column=0, padx=0, pady=0)
-assistant_name_input.grid(row=1, column=1, padx=0, pady=0)
-assistant_name_btn.grid(row=1, column=2, padx=0, pady=0)
-
-
-assistant_name_input.bind('<Return>', lambda event: change_assistent_name())
 
 
 
