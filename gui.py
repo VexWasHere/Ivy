@@ -240,16 +240,6 @@ appearance_btn = ctk.CTkButton(settings_tab, text="Change appearance mode", comm
 appearance_lbl.grid(row = 1, column = 0, padx=0, pady=0)
 appearance_btn.grid(row = 1, column = 1, padx=0, pady=0)
 
-
-
-
-
-
-
-
-
-
 update_label()
-
 
 app.mainloop()
