@@ -5,11 +5,22 @@ import random #Pause to add better typing effect
 import google.generativeai as genai
 import json
 import socket
-from PIL import Image, ImageTk
+from tkinter import messagebox
+import win32gui
+
+default = 0
 
 
 # Initialize System information
 hostname = socket.gethostname()
+
+def show_alert(title, message):
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    messagebox.showinfo(title, message)
+
+
+print(f"hostname")
 
 
 
@@ -19,11 +30,14 @@ app = ctk.CTk()
 app.title("Ivy")
 app.geometry('610x500')
 app.iconbitmap('pixel_rose.ico')
+app.configure(bg="#738290")
 
 
 # Get screen dimensions
 screen_width = app.winfo_screenwidth()
 screen_height = app.winfo_screenheight()
+
+print(f"Dimensions: {screen_width}x{screen_height}")
 
 
 app.resizable(True, True)
@@ -88,38 +102,30 @@ except (FileNotFoundError) as e:
 chat = model.start_chat()
 
 
-
-
-
-
 # Classes and Functions
-
-
-
-
-
-
-
 
 def send():
     message = chat_input.get()
     if not message.strip():
         return
    
-    chat_display.configure(state=tk.NORMAL)  # Enable editing
-    chat_display.insert(tk.END, f"You: {message}\n")
-    chat_display.configure(state=tk.DISABLED)  # Disable editing
+    try:
+        chat_display.configure(state=tk.NORMAL)  # Enable editing
+        chat_display.insert(tk.END, f"You: {message}\n")
+        chat_display.configure(state=tk.DISABLED)  # Disable editing
 
 
-    response = chat.send_message(message)
-    chat_input.delete(0, tk.END)  # Clear the entry field
-    # response_widget.configure(text="")  # Clear the label before typing effect
-    response_text = wrap_text(response.text)
+        response = chat.send_message(message) #old model
+        chat_input.delete(0, tk.END)  # Clear the entry field
+        #response_widget.configure(text="")  # Clear the label before typing effect
+        response_text = wrap_text(response.text)
 
 
-    chat_display.configure(state=tk.NORMAL)  # Enable editing
-    chat_display.insert(tk.END, f"Ivy: {response_text}" + "\n")
-    chat_display.configure(state=tk.DISABLED)  # Disable editing
+        chat_display.configure(state=tk.NORMAL)  # Enable editing
+        chat_display.insert(tk.END, f"Ivy: {response_text}" + "\n")
+        chat_display.configure(state=tk.DISABLED)  # Disable editing
+    except Exception as e:
+        print("Error in gui.py: ", e)
 
 
     # type_effect(response_widget, f"Ivy: {response_text}", 0)  # Start typing effect
@@ -165,10 +171,14 @@ def wrap_text(text, max_length=60):
 
 
 def update_label():
+    #Give the time a little more life. As of now it is just a static time refreshed every hour on the hour.
     now = datetime.now()
     current_hour = now.hour
     greeting = "Good morning" if current_hour <= 12 else "Good evening"
     formatted_time = now.strftime('%I %p')
+
+
+
 
 
    
@@ -190,9 +200,17 @@ chat_tab = tabview.add("Chat")
 settings_tab = tabview.add("Settings")
 
 
-    # Home content
+# Home content
 date_widget = ctk.CTkLabel(home_tab, font=("Times New Roman", 28))
 date_widget.grid(padx=0, pady=50)
+
+song_widget = ctk.CTkLabel(home_tab, text="Be patient! Perfection takes time.", font=("Helvetica", 14))
+song_widget.grid(padx=0, pady=0)
+
+
+
+    # News content
+
 
 
     # Chat content
@@ -211,7 +229,7 @@ chat_input = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...", width=480
 chat_input.grid(row=2, column=0, padx=20, pady=0)
 
 
-send_btn = ctk.CTkButton(chat_tab, text="Send", width = 40, command=send)
+send_btn = ctk.CTkButton(chat_tab, text="Send", width=40, command=send)
 send_btn.grid(row=2, column=1, padx=10, pady=130)
 
 
@@ -221,14 +239,55 @@ chat_input.bind('<Return>', lambda event: send())  # Pass the function reference
 
     # Settings content
         # Switching appearance mode
-dark_mode = False
-
+current_mode = 3  # 1: light, 2: dark, 3: system
+print(f"System mode on startup: {current_mode}")
 
 def dark_mode_switch():
-    global dark_mode
-    dark_mode = not dark_mode
-    ctk.set_appearance_mode('dark' if dark_mode else 'light')
-    print("gui.py: appearance mode changed!")
+    global current_mode
+    current_mode += 1
+    if current_mode > 3:
+        current_mode = 1  # Reset to light mode after system mode
+
+    if current_mode == 1:
+        ctk.set_appearance_mode('light')
+        print("gui.py: appearance mode changed to light mode!")
+    elif current_mode == 2:
+        ctk.set_appearance_mode('dark')
+        print("gui.py: appearance mode changed to dark mode!")
+    elif current_mode == 3:
+        ctk.set_appearance_mode('system')
+        print("gui.py: appearance mode changed to system mode!")
+
+info_visible = False
+info_tab = None
+
+# Info Content (The function is declared early to I have to have the function declared before the button)
+
+def show_info_content():
+    global ip_addr_lbl
+    ip_addr_lbl = ctk.CTkLabel(info_tab, text=hostname, font=("Helvetica", 14))
+    ip_addr_lbl.grid(row = 0, column = 0, padx=0, pady=0)
+
+def hide_info_content():
+    ip_addr_lbl.grid_forget()
+
+def show_info_tab():
+    global info_visible, info_tab
+    # Toggle visibility
+    try:
+        if not info_visible:
+            info_tab = tabview.add("System Info")
+            info_visible = True
+            show_info_content()
+            print("gui.py: System information displayed!")
+        else:
+            hide_info_content()
+            tabview.delete(info_tab)
+            info_visible = False
+            print("gui.py: System information hidden!")
+    except Exception as e:
+        show_alert("Error", f"An error occurred: {e}")
+        print("Error in gui.py: ", e)
 
 
 settings_lbl = ctk.CTkLabel(settings_tab, text="Design and appearances", font=("Helvetica", 14))
@@ -240,6 +299,15 @@ appearance_btn = ctk.CTkButton(settings_tab, text="Change appearance mode", comm
 appearance_lbl.grid(row = 1, column = 0, padx=0, pady=0)
 appearance_btn.grid(row = 1, column = 1, padx=0, pady=0)
 
-update_label()
+show_info_lbl = ctk.CTkLabel(settings_tab, text="Show system information: ", font=("Helvetica", 14))
+show_info_btn = ctk.CTkButton(settings_tab, text="Show system information", command=show_info_tab)
+show_info_lbl.grid(row = 2, column = 0, padx=0, pady=0)
+show_info_btn.grid(row = 2, column = 1, padx=0, pady=0)
 
-app.mainloop()
+    # Info Content
+
+
+update_label()
+while True:
+    app.mainloop()
+    app.after(500, None) #I don't know what to put here
