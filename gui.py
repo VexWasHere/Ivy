@@ -6,10 +6,10 @@ import google.generativeai as genai
 import json
 import socket
 from tkinter import messagebox
-import win32gui
+# import win32gui # Forgot what this was for ngl. Possibly notifications
 
 default = 0
-
+system_mode_on = True #Called beforehand to avoid confusion
 
 # Initialize System information
 hostname = socket.gethostname()
@@ -277,17 +277,20 @@ def show_info_tab():
     try:
         if not info_visible:
             info_tab = tabview.add("System Info")
-            info_visible = True
+            system_mode_on = True
             show_info_content()
             print("gui.py: System information displayed!")
         else:
             hide_info_content()
             tabview.delete(info_tab)
-            info_visible = False
+            system_mode_on = False
             print("gui.py: System information hidden!")
     except Exception as e:
         show_alert("Error", f"An error occurred: {e}")
         print("Error in gui.py: ", e)
+
+if system_mode_on == True:
+    show_info_tab()
 
 
 settings_lbl = ctk.CTkLabel(settings_tab, text="Design and appearances", font=("Helvetica", 14))
