@@ -4,5 +4,13 @@ A stocks tab - Settings
 Set tabs for different people and if you show you're one of the said people you have specific tabs shown. You can add more though - Settings
 A games tab for children - Settings
 
+2/19/2025
+1. Choose what type of news to see - news
+
+2/20/25
+1. Check email for day off and display it - home.
+2. Show daily quote from internet
+3. See what song is playing
+
 DEV HOME. DO NOT FORGET IT BEFORE MAY 2025. IT WILL SHUT DOWN AND IT HAS REALLY USEFUL FEATURES TO POSSIBLY IMPLEMENT
 

@@ -161,3 +161,5 @@ wrapt==1.14.1
 yarl==1.9.6
 zope.event==5.0
 zope.interface==6.1
+pandas==2.2.1
+plotly==5.18.0

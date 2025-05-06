@@ -9,7 +9,7 @@ from tkinter import messagebox
 # import win32gui # Forgot what this was for ngl. Possibly notifications
 
 default = 0
-system_mode_on = True #Called beforehand to avoid confusion
+system_mode_on = False #Called beforehand to avoid confusion
 
 # Initialize System information
 hostname = socket.gethostname()
@@ -313,4 +313,4 @@ show_info_btn.grid(row = 2, column = 1, padx=0, pady=0)
 update_label()
 while True:
     app.mainloop()
-    app.after(500, None) #I don't know what to put here
+    app.after(500, None) #I don't know what to put here so I have it automatically update every half second.
