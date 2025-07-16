@@ -6,6 +6,7 @@ import google.generativeai as genai
 import json
 import socket
 from tkinter import messagebox
+import pickle
 # import win32gui # Forgot what this was for ngl. Possibly notifications
 
 default = 0
@@ -40,8 +41,8 @@ screen_height = app.winfo_screenheight()
 print(f"Dimensions: {screen_width}x{screen_height}")
 
 
-app.resizable(True, True)
-app.minsize(600, 400)
+app.resizable(False, False)
+app.minsize(800, 500)
 app.maxsize(800, 500)
 
 
@@ -94,7 +95,7 @@ def save_history(history): #GOD I HATE THIS PART HOW DO I MAKE IT SAVE
 try: #PLEEEEEEEASEEEE
     with open(chat_history_file, 'r') as file:
         history = json.load(file)
-except (FileNotFoundError) as e:
+except (FileNotFoundError, json.JSONDecodeError) as e:
     history = []
     print("Error in gui.py: ", e, "\nHistory could not be retrieved.")
 
@@ -105,6 +106,7 @@ chat = model.start_chat()
 # Classes and Functions
 
 def send():
+
     message = chat_input.get()
     if not message.strip():
         return
@@ -195,42 +197,35 @@ tabview.pack(fill="both", expand=True, padx=10, pady=10)
 
 
 home_tab = tabview.add("Home")
-news_tab = tabview.add("News")
 chat_tab = tabview.add("Chat")
 settings_tab = tabview.add("Settings")
 
 
 # Home content
 date_widget = ctk.CTkLabel(home_tab, font=("Times New Roman", 28))
-date_widget.grid(padx=0, pady=50)
+date_widget.place(relx=0.5, rely=0.1, anchor="center")
 
 song_widget = ctk.CTkLabel(home_tab, text="Be patient! Perfection takes time.", font=("Helvetica", 14))
-song_widget.grid(padx=0, pady=0)
-
-
-
-    # News content
-
-
+song_widget.place(relx=0.5, rely=0.5, anchor="center")
 
     # Chat content
 chat_frame = ctk.CTkFrame(chat_tab, width=580, height=260)
-chat_frame.grid(row=0, column=0, padx=20, pady=20)
+chat_frame.place(relx=0.5, rely=0.5, anchor="center")
 
 
 chat_display = ctk.CTkTextbox(chat_frame, width=500, height=200, font=("Helvetica", 14))
-chat_display.grid(row=0, column=0, padx=0, pady=0)
+chat_display.place(relx=0.5, rely=0.4, anchor="center")
 
 
 chat_display.configure(state=tk.DISABLED)  # Disable editing
 
 
 chat_input = ctk.CTkEntry(chat_tab, placeholder_text="Talk to Ivy...", width=480)
-chat_input.grid(row=2, column=0, padx=20, pady=0)
+chat_input.place(relx=0.5, rely=0.9, anchor="center")
 
 
-send_btn = ctk.CTkButton(chat_tab, text="Send", width=40, command=send)
-send_btn.grid(row=2, column=1, padx=10, pady=130)
+send_btn = ctk.CTkButton(chat_tab, text="Send", width=40, command=send, corner_radius=24, fg_color="transparent")
+send_btn.place(relx=0.9, rely=0.9, anchor="center")
 
 
         # Bind the Return key to the send function
@@ -294,18 +289,14 @@ if system_mode_on == True:
 
 
 settings_lbl = ctk.CTkLabel(settings_tab, text="Design and appearances", font=("Helvetica", 14))
-settings_lbl.grid(row = 0, column = 0, padx=0, pady=0)
+settings_lbl.place(relx=0.15, rely=0.1, anchor="center")
 
 
-appearance_lbl = ctk.CTkLabel(settings_tab, text="Change appearance mode: ", font=("Helvetica", 14))
-appearance_btn = ctk.CTkButton(settings_tab, text="Change appearance mode", command=dark_mode_switch)
-appearance_lbl.grid(row = 1, column = 0, padx=0, pady=0)
-appearance_btn.grid(row = 1, column = 1, padx=0, pady=0)
+appearance_btn = ctk.CTkButton(settings_tab, text="Change appearance mode", command=dark_mode_switch, corner_radius=24)
+appearance_btn.place(relx=0.15, rely=0.2, anchor="center")
 
-show_info_lbl = ctk.CTkLabel(settings_tab, text="Show system information: ", font=("Helvetica", 14))
-show_info_btn = ctk.CTkButton(settings_tab, text="Show system information", command=show_info_tab)
-show_info_lbl.grid(row = 2, column = 0, padx=0, pady=0)
-show_info_btn.grid(row = 2, column = 1, padx=0, pady=0)
+show_info_btn = ctk.CTkButton(settings_tab, text="Show system information", command=show_info_tab, corner_radius=24)
+show_info_btn.place(relx=0.15, rely=0.3, anchor="center")
 
     # Info Content
 
