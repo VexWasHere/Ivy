@@ -6,10 +6,11 @@ from google import genai
 import textwrap
 from PIL import Image
 import speech_recognition as sr
-import threading   # NEW
+import threading
+import json
+import os
 
 r = sr.Recognizer()
-
 client = genai.Client(api_key="AIzaSyAzUb-jta-rZH9VoiWaWwz50nBJxCdvNaI")
 
 # --- Time formatting ---
@@ -40,15 +41,13 @@ ctk.set_default_color_theme("dark-blue")
 ctk.set_appearance_mode("dark")
 
 terminal_name = socket.gethostname()
-
-# --- Shared font object ---
 app_font = ctk.CTkFont(size=20)
 
 # --- Globals ---
 chat = None
 chat_frame = None
 mic_names = []
-selected_mic_index = 0   # ✅ define globally here
+selected_mic_index = 0
 
 # --- Functions ---
 def wrap_text(text, limit=45):
@@ -64,6 +63,21 @@ def wrap_text(text, limit=45):
         lines.append(current_line.rstrip())
     return "\n".join(lines)
 
+def save_message(user_msg, ai_response):
+    data = {"user": user_msg, "ivy": ai_response}
+    if os.path.exists("offline_msgs.json"):
+        with open("offline_msgs.json", "r") as f:
+            try:
+                history = json.load(f)
+            except json.JSONDecodeError:
+                history = []
+    else:
+        history = []
+
+    history.append(data)
+    with open("offline_msgs.json", "w") as f:
+        json.dump(history, f, indent=4)
+
 def send(event=None):
     msg = chat.get()
     if msg != "":
@@ -73,18 +87,22 @@ def send(event=None):
             "Always respond in a warm, approachable tone while also keeping it short and sweet."
             f"User: {msg}"
         )
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=[system_prompt]
-        ).text
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=[system_prompt]
+            ).text
+        except Exception as e:
+            response = "⚠️ Ivy is offline. Please try again later."
+
         response = wrap_text(response, limit=45)
 
         print(f"{terminal_name}: {msg}")
-        ctk.CTkLabel(chat_frame, text=f"{terminal_name}: {msg}",
-                     font=app_font, anchor="w").pack(pady=0, anchor="w")
-        ctk.CTkLabel(chat_frame, text=f"\nIvy: {response}\n",
-                     font=app_font, anchor="w").pack(pady=0, anchor="w")
+        ctk.CTkLabel(chat_frame, text=f"{terminal_name}: {msg}", font=app_font, anchor="w").pack(pady=0, anchor="w")
+        ctk.CTkLabel(chat_frame, text=f"\nIvy: {response}\n", font=app_font, anchor="w").pack(pady=0, anchor="w")
         chat.delete(0, 'end')
+
+        save_message(msg, response)
 
 def change_appearance_mode(new_mode):
     ctk.set_appearance_mode(new_mode)
@@ -181,6 +199,7 @@ def main():
                                 values=mic_names,
                                 command=set_microphone,
                                 font=app_font)
+
     mic_menu.pack(pady=10, padx=10, anchor='w')
 
     # Default to system default mic
